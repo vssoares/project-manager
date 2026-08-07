@@ -1,5 +1,5 @@
-import { NgClass } from '@angular/common'
-import { Component, Input } from '@angular/core'
+import { NgClass } from '@angular/common';
+import { Component, computed, input } from '@angular/core';
 
 const PATHS: Record<string, string> = {
   folder: 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z',
@@ -21,39 +21,36 @@ const PATHS: Record<string, string> = {
   external: 'M14 4h6v6M20 4 10 14M6 6h4v0H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4',
   code: 'm8 6-6 6 6 6M16 6l6 6-6 6',
   edit: 'M11 4H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2v-6M18.4 2.6a2 2 0 1 1 3 3L12 15l-4 1 1-4 9.4-9.4Z',
-}
+};
 
 @Component({
   selector: 'app-icon',
-  standalone: true,
   imports: [NgClass],
   template: `
-    @if (path) {
+    @if (path(); as d) {
       <svg
         viewBox="0 0 24 24"
-        [attr.width]="size"
-        [attr.height]="size"
+        [attr.width]="size()"
+        [attr.height]="size()"
         fill="none"
         stroke="currentColor"
-        [attr.stroke-width]="strokeWidth"
+        [attr.stroke-width]="strokeWidth()"
         stroke-linecap="round"
         stroke-linejoin="round"
         class="shrink-0"
-        [ngClass]="className"
+        [ngClass]="className()"
         aria-hidden="true"
       >
-        <path [attr.d]="path" />
+        <path [attr.d]="d" />
       </svg>
     }
   `,
 })
-export class IconComponent {
-  @Input({ required: true }) name!: string
-  @Input() className = ''
-  @Input() size = 18
-  @Input() strokeWidth = 1.8
+export class Icon {
+  readonly name = input.required<string>();
+  readonly className = input('');
+  readonly size = input(18);
+  readonly strokeWidth = input(1.8);
 
-  get path(): string | undefined {
-    return PATHS[this.name]
-  }
+  protected readonly path = computed(() => PATHS[this.name()]);
 }

@@ -1,24 +1,16 @@
-import { Component, inject, signal } from '@angular/core'
-import { LayoutComponent } from './components/layout.component'
-import { AppStateService } from './core/app-state.service'
-import type { PageKey } from './core/types'
-import { ComparePageComponent } from './pages/compare-page.component'
-import { FilesPageComponent } from './pages/files-page.component'
-import { HistoryPageComponent } from './pages/history-page.component'
-import { SettingsPageComponent } from './pages/settings-page.component'
-import { GitFlowPage } from './features/git-flow/pages/git-flow-page/git-flow-page'
+import { Component, inject, signal } from '@angular/core';
+import { AppStateService } from './core/app-state.service';
+import type { PageKey } from './core/types';
+import { ComparePage } from './features/env-files/pages/compare-page/compare-page';
+import { FilesPage } from './features/env-files/pages/files-page/files-page';
+import { HistoryPage } from './features/env-files/pages/history-page/history-page';
+import { SettingsPage } from './features/env-files/pages/settings-page/settings-page';
+import { GitFlowPage } from './features/git-flow/pages/git-flow-page/git-flow-page';
+import { Layout } from './layout/layout';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [
-    LayoutComponent,
-    FilesPageComponent,
-    HistoryPageComponent,
-    ComparePageComponent,
-    SettingsPageComponent,
-    GitFlowPage,
-  ],
+  imports: [Layout, FilesPage, HistoryPage, ComparePage, SettingsPage, GitFlowPage],
   template: `
     @if (!app.loaded()) {
       <div class="h-screen w-screen flex flex-col items-center justify-center gap-3 bg-void text-mute text-sm">
@@ -48,7 +40,7 @@ import { GitFlowPage } from './features/git-flow/pages/git-flow-page/git-flow-pa
     }
   `,
 })
-export class AppComponent {
-  readonly app = inject(AppStateService)
-  readonly page = signal<PageKey>('files')
+export class App {
+  readonly app = inject(AppStateService);
+  readonly page = signal<PageKey>('files');
 }

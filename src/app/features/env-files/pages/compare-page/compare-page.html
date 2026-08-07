@@ -1,0 +1,63 @@
+@if (!app.selectedFile()) {
+  <div class="h-full flex items-center justify-center text-mute text-sm">
+    Selecione um arquivo para comparar versões.
+  </div>
+} @else {
+  <div class="h-full flex flex-col overflow-hidden min-h-0">
+    <div class="px-5 py-3 border-b border-rail-edge flex items-center justify-between gap-4 flex-wrap bg-panel">
+      <div class="flex items-center gap-2">
+        <app-icon name="compare" [size]="16" className="text-copper" />
+        <h1 class="font-headline text-base font-semibold">{{ app.selectedFile()!.name }}</h1>
+      </div>
+      <div class="flex items-center gap-2 text-[11px] font-code">
+        @if (stats().deletions > 0) {
+          <span class="px-2 py-1 rounded-md bg-danger/10 text-danger">−{{ stats().deletions }}</span>
+        }
+        @if (stats().additions > 0) {
+          <span class="px-2 py-1 rounded-md bg-ok/10 text-ok">+{{ stats().additions }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="px-5 py-3 flex gap-4 border-b border-rail-edge bg-panel/80">
+      <label class="flex items-center gap-2 text-xs text-mute">
+        <span class="uppercase tracking-[0.14em] text-[10px]">Base</span>
+        <select
+          [ngModel]="baseKey()"
+          (ngModelChange)="baseKey.set($event)"
+          class="bg-void border border-rail-edge rounded-md px-2 py-1.5 text-ink outline-none focus:border-copper font-code text-[11px] max-w-[280px]"
+        >
+          @for (s of allSources(); track s.key) {
+            <option [value]="s.key">{{ s.label }}</option>
+          }
+        </select>
+      </label>
+      <label class="flex items-center gap-2 text-xs text-mute">
+        <span class="uppercase tracking-[0.14em] text-[10px]">Alvo</span>
+        <select
+          [ngModel]="targetKey()"
+          (ngModelChange)="targetKey.set($event)"
+          class="bg-void border border-rail-edge rounded-md px-2 py-1.5 text-ink outline-none focus:border-copper font-code text-[11px] max-w-[280px]"
+        >
+          @for (s of allSources(); track s.key) {
+            <option [value]="s.key">{{ s.label }}</option>
+          }
+        </select>
+      </label>
+    </div>
+
+    @if (base() && target()) {
+      <app-monaco-diff
+        [original]="base()!.content"
+        [modified]="target()!.content"
+        [fileName]="app.selectedFile()!.name"
+        [originalLabel]="base()!.label"
+        [modifiedLabel]="target()!.label"
+      />
+    } @else {
+      <div class="flex-1 flex items-center justify-center text-mute text-sm">
+        Crie ao menos duas versões ou ambientes para comparar.
+      </div>
+    }
+  </div>
+}

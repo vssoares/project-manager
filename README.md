@@ -54,6 +54,19 @@ O script roda com `-ExecutionPolicy Bypass` apenas para permitir a execução do
 
 ---
 
+## Release
+
+Publicar uma nova versão (gera o instalador Windows e cria um GitHub Release, usado pelo auto-update):
+
+```bash
+npm version patch   # ou minor / major — atualiza a versão no package.json e cria a tag
+git push && git push --tags
+```
+
+O workflow `.github/workflows/release.yml` builda e publica automaticamente ao detectar uma tag `vX.Y.Z`.
+
+---
+
 ## Desenvolvimento
 
 ```bash

@@ -1,10 +1,9 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core'
-import { IconComponent } from './icon.component'
+import { Component, input, output } from '@angular/core';
+import { Icon } from '../icon/icon';
 
 @Component({
   selector: 'app-modal',
-  standalone: true,
-  imports: [IconComponent],
+  imports: [Icon],
   template: `
     <div
       class="fixed inset-0 z-50 flex items-center justify-center bg-void/75 backdrop-blur-[2px]"
@@ -15,7 +14,7 @@ import { IconComponent } from './icon.component'
         (click)="$event.stopPropagation()"
       >
         <div class="flex items-center justify-between px-5 py-3.5 border-b border-rail-edge">
-          <h2 class="font-headline text-sm font-semibold text-ink tracking-tight">{{ title }}</h2>
+          <h2 class="font-headline text-sm font-semibold text-ink tracking-tight">{{ title() }}</h2>
           <button type="button" class="text-mute hover:text-ink transition-colors" (click)="closed.emit()">
             <app-icon name="close" [size]="18" />
           </button>
@@ -27,7 +26,7 @@ import { IconComponent } from './icon.component'
     </div>
   `,
 })
-export class ModalComponent {
-  @Input({ required: true }) title!: string
-  @Output() closed = new EventEmitter<void>()
+export class Modal {
+  readonly title = input.required<string>();
+  readonly closed = output<void>();
 }
