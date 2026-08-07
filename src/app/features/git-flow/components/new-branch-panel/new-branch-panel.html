@@ -1,0 +1,71 @@
+<div class="flex flex-col gap-3">
+  <div class="flex flex-col gap-1.5">
+    <span class="text-[10px] font-semibold text-mute uppercase tracking-widest">// tipo</span>
+    <div class="flex gap-1.5 flex-wrap">
+      @for (type of store.branchTypes; track type) {
+        <app-button
+          variant="toggle"
+          [isActive]="store.branchType() === type"
+          active="bg-copper/10 text-copper border-copper shadow-[0_0_8px_rgba(232,164,92,0.2)] rounded-md"
+          idle="bg-transparent text-mute border-rail-edge hover:border-copper hover:text-copper rounded-md"
+          class="px-3 py-1.5 border text-xs font-medium tracking-wide"
+          [disabled]="store.running()"
+          (clicked)="store.branchType.set(type)"
+        >
+          {{ type }}
+        </app-button>
+      }
+    </div>
+  </div>
+
+  <div class="flex gap-2">
+    <div class="flex flex-col gap-1.5 w-36">
+      <label for="branch-us" class="text-[10px] font-semibold text-mute uppercase tracking-widest">// cód. US</label>
+      <input
+        id="branch-us"
+        name="branch-us"
+        autocomplete="off"
+        type="text"
+        placeholder="17433"
+        [ngModel]="store.branchUs()"
+        (ngModelChange)="store.branchUs.set($event)"
+        [disabled]="store.running()"
+        class="w-full px-3 py-2 bg-void border border-rail-edge focus:border-copper text-ink text-sm font-medium placeholder-mute focus:outline-none transition-colors rounded-md"
+      />
+    </div>
+    <div class="flex flex-col gap-1.5 flex-1">
+      <label for="branch-name" class="text-[10px] font-semibold text-mute uppercase tracking-widest">// nome *</label>
+      <input
+        id="branch-name"
+        name="branch-name"
+        autocomplete="off"
+        type="text"
+        placeholder="relatorios-agendamento"
+        [ngModel]="store.branchName()"
+        (ngModelChange)="store.branchName.set($event)"
+        (keydown)="onNameKeydown($event)"
+        [disabled]="store.running()"
+        autofocus
+        class="w-full px-3 py-2 bg-void border border-rail-edge focus:border-copper text-ink text-sm font-medium placeholder-mute focus:outline-none transition-colors rounded-md"
+      />
+    </div>
+  </div>
+
+  <div class="flex items-center gap-3">
+    <span class="flex-1 text-[11px] font-code truncate">
+      @if (store.branchName().trim()) {
+        <span class="text-copper">{{ store.branchPreview() }}</span>
+      } @else {
+        <span class="text-mute italic">feature/tipo-[us]-nome</span>
+      }
+    </span>
+    <app-button
+      variant="solid"
+      class="px-5 py-2 text-xs"
+      [disabled]="store.running() || !store.selectedProject() || !store.branchName().trim()"
+      (clicked)="store.createBranch()"
+    >
+      {{ store.running() ? 'running...' : 'criar branch' }}
+    </app-button>
+  </div>
+</div>

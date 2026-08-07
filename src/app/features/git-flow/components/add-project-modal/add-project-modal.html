@@ -1,0 +1,66 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+  (click)="$event.target === $event.currentTarget && close.emit()"
+  (keydown)="onKeydown($event)"
+  role="presentation"
+>
+  <div
+    class="w-[480px] bg-panel border border-rail-edge shadow-2xl p-6 flex flex-col gap-4 rounded-md"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+  >
+    <span id="modal-title" class="text-[10px] font-semibold text-mute uppercase tracking-widest">// novo projeto</span>
+
+    <div class="flex flex-col gap-1.5">
+      <label for="proj-name" class="text-[10px] text-mute uppercase tracking-widest">nome</label>
+      <input
+        id="proj-name"
+        name="proj-name"
+        autocomplete="off"
+        class="bg-void border border-rail-edge text-ink text-xs px-3 py-2 rounded-md focus:outline-none focus-visible:ring-1 focus-visible:ring-copper focus:border-copper placeholder:text-mute"
+        placeholder="ex: meu-projeto"
+        [ngModel]="name()"
+        (ngModelChange)="name.set($event)"
+      />
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <label for="proj-path" class="text-[10px] text-mute uppercase tracking-widest">caminho</label>
+      <div class="flex gap-2">
+        <input
+          id="proj-path"
+          name="proj-path"
+          autocomplete="off"
+          class="flex-1 bg-void border border-rail-edge text-ink text-xs px-3 py-2 rounded-md focus:outline-none focus-visible:ring-1 focus-visible:ring-copper focus:border-copper placeholder:text-mute"
+          placeholder="C:\caminho\do\projeto"
+          [ngModel]="folderPath()"
+          (ngModelChange)="folderPath.set($event)"
+        />
+        <button
+          class="cursor-pointer px-3 py-2 text-[11px] tracking-widest uppercase whitespace-nowrap border border-rail-edge text-mute hover:border-copper hover:text-copper rounded-md transition-colors duration-100"
+          (click)="browse()"
+        >
+          Selecionar
+        </button>
+      </div>
+    </div>
+
+    <div class="flex gap-2 justify-end pt-1">
+      <button
+        class="cursor-pointer px-4 py-1.5 text-[11px] tracking-widest uppercase border border-rail-edge text-mute hover:border-mute hover:text-ink rounded-md transition-colors duration-100"
+        (click)="close.emit()"
+      >
+        cancelar
+      </button>
+      <app-button
+        variant="outline"
+        class="px-4 py-1.5 text-[11px] tracking-widest uppercase"
+        [disabled]="!name().trim() || !folderPath().trim()"
+        (clicked)="submit()"
+      >
+        adicionar
+      </app-button>
+    </div>
+  </div>
+</div>

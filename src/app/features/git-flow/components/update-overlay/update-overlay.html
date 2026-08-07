@@ -1,0 +1,39 @@
+<div class="fixed inset-0 z-50 bg-void flex flex-col items-center justify-center gap-8 select-none">
+  <div class="flex flex-col items-center gap-1">
+    <div class="flex items-center gap-2">
+      <h1 class="font-headline text-base font-bold text-copper tracking-widest uppercase">Project Manager</h1>
+    </div>
+  </div>
+
+  <div class="flex flex-col items-center gap-5 w-72">
+    <div class="text-center flex flex-col gap-1">
+      <p class="text-[11px] tracking-[0.2em] uppercase text-ink font-code font-semibold">
+        {{ isInstalling() ? 'instalando atualização' : 'baixando atualização' }}
+      </p>
+      @if (info().version) {
+        <p class="text-[10px] tracking-widest text-mute font-code">→ v{{ info().version }}</p>
+      }
+    </div>
+
+    <div class="w-full flex flex-col gap-1.5">
+      <div
+        class="w-full h-[3px] bg-rail rounded-full overflow-hidden"
+        role="progressbar"
+        [attr.aria-valuenow]="info().progress"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-label="Progresso da atualização"
+      >
+        <div class="h-full bg-copper rounded-full transition-[width] duration-400 ease-out" [style.width.%]="info().progress"></div>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-[9px] text-mute font-code tracking-widest uppercase">
+          {{ isInstalling() ? 'preparando...' : 'aguarde...' }}
+        </span>
+        <span class="text-[9px] text-copper font-code tracking-widest">{{ info().progress }}%</span>
+      </div>
+    </div>
+
+    <p class="text-[9px] text-mute font-code tracking-widest text-center">o app será reiniciado automaticamente</p>
+  </div>
+</div>

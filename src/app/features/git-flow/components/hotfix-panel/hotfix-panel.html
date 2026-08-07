@@ -1,0 +1,62 @@
+<div class="flex flex-col gap-3">
+  <div class="flex gap-2">
+    @for (action of store.actions; track action.id) {
+      <app-button
+        variant="toggle"
+        [isActive]="store.selectedAction() === action.id"
+        [active]="action.active"
+        [idle]="action.idle"
+        class="flex-1 py-2.5 border text-xs font-semibold"
+        [disabled]="store.running() || !store.selectedProject()"
+        (clicked)="store.selectAction(action.id)"
+      >
+        {{ action.label }}
+      </app-button>
+    }
+  </div>
+
+  @if (store.selectedAction(); as action) {
+    <div class="flex flex-col gap-1.5">
+      <label for="hotfix-version" class="text-[10px] font-semibold text-mute uppercase tracking-widest">// versão</label>
+      <div class="flex gap-2">
+        <div class="relative flex-1 flex items-center">
+          <span class="absolute left-3 text-copper text-sm select-none" aria-hidden="true">›</span>
+          <input
+            id="hotfix-version"
+            name="hotfix-version"
+            autocomplete="off"
+            type="text"
+            placeholder="3.13.4"
+            [ngModel]="store.version()"
+            (ngModelChange)="store.version.set($event)"
+            (keydown)="onVersionKeydown($event)"
+            [disabled]="store.running()"
+            autofocus
+            class="flex-1 px-3 py-2 pl-7 bg-void border border-rail-edge focus:border-copper text-ink text-sm font-medium placeholder-mute focus:outline-none transition-colors rounded-md"
+          />
+        </div>
+        <app-button
+          variant="solid"
+          class="px-5 py-2 text-xs"
+          [disabled]="store.running() || !store.version().trim()"
+          (clicked)="store.execute()"
+        >
+          {{ store.running() ? 'running...' : 'executar' }}
+        </app-button>
+      </div>
+
+      @if (action === 'delete') {
+        <label class="flex items-center gap-2 text-[10px] tracking-widest uppercase text-mute select-none">
+          <input
+            type="checkbox"
+            [ngModel]="store.forceHotfixDelete()"
+            (ngModelChange)="store.forceHotfixDelete.set($event)"
+            [disabled]="store.running()"
+            class="accent-danger"
+          />
+          forçar (-f)
+        </label>
+      }
+    </div>
+  }
+</div>

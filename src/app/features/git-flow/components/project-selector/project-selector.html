@@ -1,0 +1,42 @@
+<div class="flex flex-col gap-2">
+  <span class="text-[10px] font-semibold text-mute uppercase tracking-widest">// projeto</span>
+  <div class="flex flex-wrap gap-1.5 items-center">
+    @for (project of store.allProjects(); track project.name) {
+      <div class="relative group">
+        <app-button
+          variant="toggle"
+          [isActive]="store.selectedProject() === project.name"
+          active="bg-copper/10 text-copper border-copper shadow-[0_0_10px_rgba(232,164,92,0.2)] rounded-md"
+          idle="bg-transparent text-mute border-rail-edge hover:border-copper hover:text-copper rounded-md"
+          class="px-3 py-1.5 border text-xs font-medium tracking-wide"
+          [disabled]="store.running()"
+          (clicked)="store.selectProject(project.name)"
+        >
+          {{ project.name }}
+        </app-button>
+        @if (project.isCustom) {
+          <button
+            class="absolute -top-1.5 -right-1.5 hidden group-hover:flex items-center justify-center w-3.5 h-3.5 rounded-full bg-rail text-mute hover:bg-danger hover:text-on-primary transition-colors text-[8px] leading-none cursor-pointer"
+            (click)="store.removeProject(project.name)"
+            [attr.aria-label]="'Remover projeto ' + project.name"
+          >
+            <span aria-hidden="true">✕</span>
+          </button>
+        }
+      </div>
+    }
+
+    <button
+      class="cursor-pointer px-3 py-1.5 border border-dashed border-rail-edge text-mute hover:border-copper hover:text-copper text-xs rounded-md transition-colors duration-100"
+      (click)="showModal.set(true)"
+      [disabled]="store.running()"
+      aria-label="Adicionar projeto"
+    >
+      <span aria-hidden="true">+</span>
+    </button>
+  </div>
+</div>
+
+@if (showModal()) {
+  <app-add-project-modal (add)="onAdd($event)" (close)="showModal.set(false)" />
+}

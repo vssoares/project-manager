@@ -1,0 +1,317 @@
+import { Component, inject, signal } from '@angular/core'
+import { FormsModule } from '@angular/forms'
+import { CodeEditorComponent } from '../components/code-editor.component'
+import { IconComponent } from '../components/icon.component'
+import { ModalComponent } from '../components/modal.component'
+import { AppStateService } from '../core/app-state.service'
+import { ENV_COLORS } from '../core/types'
+
+function timeAgo(ts: number) {
+  const diff = Date.now() - ts
+  const min = Math.floor(diff / 60000)
+  if (min < 1) return 'agora mesmo'
+  if (min < 60) return `${min} min atrás`
+  const h = Math.floor(min / 60)
+  if (h < 24) return `${h}h atrás`
+  return `${Math.floor(h / 24)}d atrás`
+}
+
+@Component({
+  selector: 'app-files-page',
+  standalone: true,
+  imports: [FormsModule, CodeEditorComponent, IconComponent, ModalComponent],
+  template: `
+    @if (app.selectedFile(); as file) {
+      <div class="h-full flex flex-col relative">
+        <div class="flex items-center justify-between px-4 py-2.5 bg-panel border-b border-rail-edge gap-3">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            @for (e of file.environments; track e.id) {
+              <button
+                type="button"
+                class="env-chip px-3 py-1.5 rounded-md text-xs tracking-wide border flex items-center gap-2"
+                [attr.data-active]="e.id === currentEnvId(file)"
+                [class.bg-rail]="e.id === currentEnvId(file)"
+                [class.text-ink]="e.id === currentEnvId(file)"
+                [class.border-copper]="e.id === currentEnvId(file)"
+                [class.bg-void]="e.id !== currentEnvId(file)"
+                [class.text-mute]="e.id !== currentEnvId(file)"
+                [class.border-rail-edge]="e.id !== currentEnvId(file)"
+                (click)="app.selectEnvironment(e.id)"
+              >
+                <span class="w-2 h-2 rounded-full" [style.background]="e.color"></span>
+                {{ e.name }}
+                @if (file.activeEnvironmentId === e.id) {
+                  <span class="text-[9px] uppercase tracking-widest text-signal font-code">live</span>
+                }
+              </button>
+            }
+            <button
+              type="button"
+              class="px-2.5 py-1.5 rounded-md text-xs border border-dashed border-rail-edge text-mute hover:text-ink hover:border-mute transition-colors flex items-center gap-1"
+              (click)="newEnvOpen.set(true)"
+            >
+              <app-icon name="plus" [size]="12" /> Ambiente
+            </button>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              class="bg-copper text-on-primary px-3 py-1.5 rounded-md hover:bg-copper-dim transition-colors text-xs font-semibold tracking-wide flex items-center gap-1.5"
+              (click)="saveMsgOpen.set(true)"
+            >
+              <app-icon name="save" [size]="14" /> Salvar versão
+            </button>
+            <button
+              type="button"
+              class="border border-signal/40 text-signal px-3 py-1.5 rounded-md hover:bg-signal/10 transition-colors text-xs font-semibold tracking-wide flex items-center gap-1.5"
+              (click)="handleApply(file.id)"
+            >
+              <app-icon name="rocket" [size]="14" />
+              {{ file.path ? 'Aplicar no arquivo' : 'Vincular arquivo' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="flex-1 flex overflow-hidden min-h-0">
+          <div class="flex-1 flex flex-col min-w-0 min-h-0">
+            <div class="flex items-center px-4 py-1.5 bg-void border-b border-rail-edge/60 text-mute font-code text-[11px]">
+              <app-icon name="file" [size]="12" className="mr-2 text-copper" />
+              {{ file.name }}
+              @if (env(file); as e) {
+                <span class="ml-2 text-mute/70">/ {{ e.name }}</span>
+              }
+              <span class="ml-auto opacity-60">UTF-8 · Monaco</span>
+            </div>
+            @if (env(file); as e) {
+              <app-code-editor
+                [value]="e.content"
+                [fileName]="file.name"
+                (valueChange)="app.updateEnvironmentContent(file.id, e.id, $event)"
+              />
+            } @else {
+              <div class="flex-1 flex items-center justify-center text-mute text-sm">
+                Crie um ambiente para começar a editar.
+              </div>
+            }
+          </div>
+
+          <aside class="w-64 shrink-0 border-l border-rail-edge bg-panel p-4 overflow-y-auto scrollbar-thin space-y-5">
+            <div>
+              <div class="text-[10px] uppercase tracking-[0.18em] text-mute mb-2">Caminho no disco</div>
+              @if (file.path) {
+                <div class="font-code text-[11px] text-ink break-all bg-void border border-rail-edge rounded-md px-2.5 py-2 leading-relaxed">
+                  {{ file.path }}
+                </div>
+              } @else {
+                <div class="text-xs text-mute">Ainda sem vínculo. Vincule para aplicar ambientes.</div>
+              }
+              <button
+                type="button"
+                class="mt-2 text-xs text-copper hover:underline flex items-center gap-1"
+                (click)="app.linkPath(file.id)"
+              >
+                <app-icon name="link" [size]="12" />
+                {{ file.path ? 'Alterar vínculo' : 'Vincular a um arquivo' }}
+              </button>
+            </div>
+
+            @if (env(file); as e) {
+              <div>
+                <div class="text-[10px] uppercase tracking-[0.18em] text-mute mb-2">Ambiente atual</div>
+                <div class="text-xs text-mute space-y-1.5">
+                  <div>Atualizado {{ ago(e.updatedAt) }}</div>
+                  <div>{{ e.versions.length }} versão(ões) salvas</div>
+                  <div>{{ lineCount(e.content) }} linhas com conteúdo</div>
+                </div>
+              </div>
+            }
+
+            <div>
+              <div class="text-[10px] uppercase tracking-[0.18em] text-mute mb-2">Ambientes</div>
+              <div class="space-y-0.5">
+                @for (e of file.environments; track e.id) {
+                  <div class="flex items-center justify-between group px-2 py-1.5 rounded-md hover:bg-rail/50">
+                    <span class="flex items-center gap-2 text-xs text-ink">
+                      <span class="w-2 h-2 rounded-full" [style.background]="e.color"></span>
+                      {{ e.name }}
+                    </span>
+                    @if (file.environments.length > 1) {
+                      <button
+                        type="button"
+                        class="opacity-0 group-hover:opacity-100 text-mute hover:text-danger transition-opacity"
+                        (click)="app.removeEnvironment(file.id, e.id)"
+                      >
+                        <app-icon name="trash" [size]="13" />
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        @if (toast()) {
+          <div class="absolute bottom-5 right-5 bg-rail border border-rail-edge text-ink text-xs px-4 py-2.5 rounded-md shadow-xl flex items-center gap-2 fade-in">
+            <app-icon name="check" [size]="14" className="text-ok" />
+            {{ toast() }}
+          </div>
+        }
+
+        @if (newEnvOpen()) {
+          <app-modal title="Novo ambiente" (closed)="newEnvOpen.set(false)">
+            <div class="space-y-3">
+              <div>
+                <label class="text-xs text-mute">Nome</label>
+                <input
+                  [(ngModel)]="newEnvName"
+                  placeholder="ex: Homologação"
+                  class="mt-1 w-full bg-void border border-rail-edge rounded-md px-3 py-2 text-sm text-ink outline-none focus:border-copper"
+                />
+              </div>
+              <div>
+                <label class="text-xs text-mute">Cor do LED</label>
+                <div class="mt-1 flex gap-2">
+                  @for (c of colors; track c.color) {
+                    <button
+                      type="button"
+                      class="w-6 h-6 rounded-full border-2"
+                      [class.border-ink]="newEnvColor === c.color"
+                      [class.border-transparent]="newEnvColor !== c.color"
+                      [style.background]="c.color"
+                      [attr.title]="c.name"
+                      (click)="newEnvColor = c.color"
+                    ></button>
+                  }
+                </div>
+              </div>
+            </div>
+            <div class="mt-5 flex justify-end gap-2">
+              <button type="button" class="px-3 py-1.5 rounded-md text-xs text-mute hover:text-ink" (click)="newEnvOpen.set(false)">
+                Cancelar
+              </button>
+              <button
+                type="button"
+                class="bg-copper text-on-primary px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide hover:bg-copper-dim transition-colors"
+                (click)="createEnv(file.id)"
+              >
+                Criar
+              </button>
+            </div>
+          </app-modal>
+        }
+
+        @if (saveMsgOpen() && env(file); as e) {
+          <app-modal title="Salvar nova versão" (closed)="saveMsgOpen.set(false)">
+            <label class="text-xs text-mute">Mensagem (opcional)</label>
+            <input
+              [(ngModel)]="versionMsg"
+              placeholder="ex: Atualizado DB_PORT para 5432"
+              class="mt-1 w-full bg-void border border-rail-edge rounded-md px-3 py-2 text-sm text-ink outline-none focus:border-copper"
+            />
+            <div class="mt-5 flex justify-end gap-2">
+              <button type="button" class="px-3 py-1.5 rounded-md text-xs text-mute hover:text-ink" (click)="saveMsgOpen.set(false)">
+                Cancelar
+              </button>
+              <button
+                type="button"
+                class="bg-copper text-on-primary px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide hover:bg-copper-dim transition-colors"
+                (click)="saveVersion(file.id, e.id)"
+              >
+                Salvar
+              </button>
+            </div>
+          </app-modal>
+        }
+      </div>
+    } @else {
+      <div class="h-full flex flex-col items-center justify-center gap-5 text-mute px-6">
+        <div class="w-14 h-14 rounded-md border border-rail-edge bg-panel flex items-center justify-center text-copper">
+          <app-icon name="file" [size]="28" />
+        </div>
+        <div class="text-center max-w-sm">
+          <p class="text-ink font-headline font-medium">Monte o primeiro arquivo</p>
+          <p class="text-xs mt-1.5 leading-relaxed">
+            Crie um .env (ou outro config) e adicione ambientes como Produção, Staging e Local.
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <input
+            [(ngModel)]="newFileName"
+            placeholder=".env"
+            class="bg-panel border border-rail-edge rounded-md px-3 py-2 text-sm text-ink outline-none focus:border-copper font-code"
+          />
+          <button
+            type="button"
+            class="bg-copper text-on-primary px-3 py-2 rounded-md text-xs font-semibold tracking-wide hover:bg-copper-dim transition-colors"
+            (click)="createFile()"
+          >
+            Criar arquivo
+          </button>
+        </div>
+      </div>
+    }
+  `,
+})
+export class FilesPageComponent {
+  readonly app = inject(AppStateService)
+  readonly colors = ENV_COLORS
+  readonly newEnvOpen = signal(false)
+  readonly saveMsgOpen = signal(false)
+  readonly toast = signal<string | null>(null)
+
+  newFileName = ''
+  newEnvName = ''
+  newEnvColor: string = ENV_COLORS[0].color
+  versionMsg = ''
+
+  currentEnvId(file: { environments: { id: string }[] }) {
+    return this.app.selectedEnvironment()?.id ?? file.environments[0]?.id
+  }
+
+  env(file: { environments: { id: string; name: string; content: string; updatedAt: number; versions: unknown[]; color: string }[] }) {
+    const id = this.currentEnvId(file)
+    return file.environments.find((e) => e.id === id) ?? null
+  }
+
+  ago = timeAgo
+  lineCount(content: string) {
+    return content.split('\n').filter(Boolean).length
+  }
+
+  createFile() {
+    this.app.addTrackedFileManual(this.newFileName || '.env')
+    this.newFileName = ''
+  }
+
+  createEnv(fileId: string) {
+    if (!this.newEnvName.trim()) return
+    this.app.addEnvironment(fileId, this.newEnvName.trim(), this.newEnvColor)
+    this.newEnvName = ''
+    this.newEnvOpen.set(false)
+  }
+
+  saveVersion(fileId: string, envId: string) {
+    this.app.saveVersion(fileId, envId, this.versionMsg)
+    this.versionMsg = ''
+    this.saveMsgOpen.set(false)
+    this.showToast('Versão salva no histórico.')
+  }
+
+  async handleApply(fileId: string) {
+    const file = this.app.selectedFile()
+    const env = this.env(file!)
+    if (!env) return
+    if (!file?.path) {
+      await this.app.linkPath(fileId)
+      return
+    }
+    const res = await this.app.applyToDisk(fileId, env.id)
+    this.showToast(res.message)
+  }
+
+  private showToast(msg: string) {
+    this.toast.set(msg)
+    setTimeout(() => this.toast.set(null), 3500)
+  }
+}

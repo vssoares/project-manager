@@ -1,0 +1,37 @@
+<div class="flex flex-col gap-2">
+  <header class="flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span class="font-headline text-[15px] font-semibold tracking-tight text-ink">Git Flow</span>
+      <span class="text-[10px] uppercase tracking-[0.18em] text-mute">Hotfix &amp; branches</span>
+    </div>
+  </header>
+
+  @if (update.pendingVersion(); as version) {
+    <div class="fade-in flex items-center justify-between border border-copper/50 bg-copper/10 px-3 py-1.5 rounded-md">
+      <span class="text-[10px] tracking-widest text-copper uppercase truncate font-code">
+        <span aria-hidden="true">↑ </span>atualização disponível → v{{ version }}
+      </span>
+      <button
+        [disabled]="update.isUpdating()"
+        (click)="onUpdateClick()"
+        class="text-[10px] tracking-widest uppercase border border-copper text-copper hover:bg-copper hover:text-on-primary disabled:opacity-60 disabled:cursor-not-allowed px-2 py-0.5 rounded transition-colors cursor-pointer shrink-0 ml-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-copper"
+      >
+        {{ update.isUpdating() ? 'atualizando...' : 'atualizar' }}
+      </button>
+    </div>
+  }
+
+  @if (update.updateError(); as error) {
+    <div class="fade-in flex items-center justify-between border border-danger/60 bg-danger/10 px-3 py-1.5 rounded-md">
+      <span class="text-[10px] tracking-widest text-danger uppercase truncate">
+        <span aria-hidden="true">✗ </span>erro: {{ error }}
+      </span>
+      <button
+        class="text-[10px] tracking-widest uppercase border border-danger text-danger hover:bg-danger hover:text-on-primary px-2 py-0.5 rounded transition-colors cursor-pointer shrink-0 ml-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-danger"
+        (click)="update.dismissError()"
+      >
+        fechar
+      </button>
+    </div>
+  }
+</div>

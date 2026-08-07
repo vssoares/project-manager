@@ -1,0 +1,13 @@
+<div class="flex gap-0 border border-rail-edge rounded-md overflow-hidden">
+  @for (tab of tabs; track tab.id; let i = $index) {
+    <app-button
+      variant="tab"
+      [isActive]="store.mode() === tab.id"
+      [class]="tabClass(i)"
+      [disabled]="store.running()"
+      (clicked)="store.switchMode(tab.id)"
+    >
+      {{ tab.label }}
+    </app-button>
+  }
+</div>

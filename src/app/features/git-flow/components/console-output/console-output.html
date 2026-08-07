@@ -1,0 +1,28 @@
+<div class="flex flex-col flex-1 min-h-0">
+  <div class="flex justify-between items-center mb-1.5">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] font-semibold text-mute uppercase tracking-widest">// output</span>
+      @if (store.running()) {
+        <span class="flex items-center gap-1 text-[10px] text-copper">
+          <span class="w-1.5 h-1.5 rounded-full bg-signal circuit-pulse"></span>
+          <span class="tracking-widest uppercase">running</span>
+        </span>
+      }
+    </div>
+    @if (store.lines().length > 0 && !store.running()) {
+      <app-button variant="outline" class="px-2 py-0.5 text-[10px] tracking-widest uppercase" (clicked)="store.clearLines()">
+        clear
+      </app-button>
+    }
+  </div>
+  <div class="flex-1 min-h-0 overflow-y-auto scrollbar-thin bg-void border border-rail-edge rounded-md p-4 font-code text-[12px] leading-relaxed" aria-live="polite" aria-atomic="false">
+    @if (store.lines().length === 0) {
+      <span class="text-mute italic">awaiting input...</span>
+    } @else {
+      @for (line of store.lines(); track $index) {
+        <div class="whitespace-pre-wrap break-all" [class]="lineClass(line.type)">{{ line.text }}</div>
+      }
+    }
+    <div #endRef></div>
+  </div>
+</div>
