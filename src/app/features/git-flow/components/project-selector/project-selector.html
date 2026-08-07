@@ -8,7 +8,7 @@
           [isActive]="store.selectedProject() === project.name"
           active="bg-copper/10 text-copper border-copper shadow-[0_0_10px_rgba(232,164,92,0.2)] rounded-md"
           idle="bg-transparent text-mute border-rail-edge hover:border-copper hover:text-copper rounded-md"
-          class="px-3 py-1.5 border text-xs font-medium tracking-wide"
+          class="px-3 py-1.5 text-xs font-medium tracking-wide"
           [disabled]="store.running()"
           (clicked)="store.selectProject(project.name)"
         >
