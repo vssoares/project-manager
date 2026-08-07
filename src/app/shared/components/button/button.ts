@@ -14,6 +14,7 @@ const TAB_IDLE = 'text-mute hover:text-ink rounded-md uppercase tracking-widest 
 
 @Component({
   selector: 'app-button',
+  host: { class: 'contents' },
   template: `
     <button type="button" [class]="hostClass()" [disabled]="disabled()" (click)="clicked.emit()">
       <ng-content />
@@ -44,7 +45,7 @@ export class Button {
         variantClass = this.isActive() ? TAB_ACTIVE : TAB_IDLE;
         break;
       case 'toggle':
-        variantClass = this.isActive() ? this.active() : this.idle();
+        variantClass = `border ${this.isActive() ? this.active() : this.idle()}`;
         break;
     }
 
