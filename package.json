@@ -17,6 +17,7 @@
     "dist:win": "npm run build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win",
     "dist:win:publish": "npm run build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win --publish always",
     "lint": "oxlint",
+    "icons": "node scripts/generate-app-icon.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -38,6 +39,7 @@
     "@angular-devkit/build-angular": "^21.2.20",
     "@angular/build": "^21.2.20",
     "@angular/compiler-cli": "^21.2.19",
+    "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/diff": "^7.0.2",
     "@types/node": "^24.13.3",
