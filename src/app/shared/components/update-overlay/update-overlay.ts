@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import type { UpdateInfo } from '../../../../core/update/update.service';
+import type { UpdateInfo } from '../../../core/update/update.service';
 
 @Component({
   selector: 'app-update-overlay',

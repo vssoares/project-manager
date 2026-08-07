@@ -1,10 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
-import { ElectronApiService } from '../../data-access/electron-api.service';
-import { UpdateService } from '../../../../core/update/update.service';
+import { Component, inject } from '@angular/core';
 import { Button } from '../../../../shared/components/button/button';
 import { GitFlowStore } from '../../state/git-flow.store';
 import { Header } from '../../components/header/header';
-import { UpdateOverlay } from '../../components/update-overlay/update-overlay';
 import { ProjectSelector } from '../../components/project-selector/project-selector';
 import { ModeTabs } from '../../components/mode-tabs/mode-tabs';
 import { HotfixPanel } from '../../components/hotfix-panel/hotfix-panel';
@@ -17,7 +14,6 @@ import { ConsoleOutput } from '../../components/console-output/console-output';
   imports: [
     Button,
     Header,
-    UpdateOverlay,
     ProjectSelector,
     ModeTabs,
     HotfixPanel,
@@ -28,16 +24,5 @@ import { ConsoleOutput } from '../../components/console-output/console-output';
   templateUrl: './git-flow-page.html',
 })
 export class GitFlowPage {
-  private readonly electron = inject(ElectronApiService);
-
-  protected readonly update = inject(UpdateService);
   protected readonly store = inject(GitFlowStore);
-  protected readonly appVersion = signal('');
-
-  constructor() {
-    this.update.init();
-    if (this.electron.isElectron) {
-      this.electron.getAppVersion().then((version) => this.appVersion.set(version));
-    }
-  }
 }

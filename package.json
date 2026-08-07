@@ -76,6 +76,7 @@
       "output": "release",
       "buildResources": "build"
     },
+    "artifactName": "ProjectManager-Setup-${version}.${ext}",
     "win": {
       "icon": "build/icon.png",
       "target": [
