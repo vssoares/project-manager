@@ -6,7 +6,7 @@ Aplicativo desktop (Electron + Angular) para desenvolvedores: gerencia versões 
 
 ## Funcionalidades
 
-### Editor de ambientes (env switcher)
+### Editor de ambientes (Project manager)
 - Rastreie qualquer arquivo de configuração e mantenha múltiplos "ambientes" (versões nomeadas e coloridas) dele.
 - Histórico de versões por ambiente, com diff lado a lado (Monaco).
 - Aplique um ambiente diretamente no arquivo vinculado no disco.
