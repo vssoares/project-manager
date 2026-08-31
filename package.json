@@ -1,7 +1,7 @@
 {
   "name": "project-manager",
   "private": true,
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Gerencie múltiplas versões e ambientes de arquivos de configuração (.env e outros) e automatize o fluxo de hotfix/branches do Git Flow, com histórico, comparação e execução de comandos Git.",
   "author": "vssoares",
   "type": "module",
