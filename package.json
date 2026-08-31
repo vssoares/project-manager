@@ -70,6 +70,10 @@
         "to": "icon.png"
       },
       {
+        "from": "build/icon.ico",
+        "to": "icon.ico"
+      },
+      {
         "from": "hf.ps1",
         "to": "hf.ps1"
       }
@@ -80,7 +84,7 @@
     },
     "artifactName": "ProjectManager-Setup-${version}.${ext}",
     "win": {
-      "icon": "build/icon.png",
+      "icon": "build/icon.ico",
       "target": [
         {
           "target": "nsis",
@@ -89,7 +93,7 @@
           ]
         }
       ],
-      "signAndEditExecutable": false
+      "signExecutable": false
     },
     "nsis": {
       "oneClick": false,

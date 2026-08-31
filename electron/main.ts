@@ -19,9 +19,14 @@ const isDev = !app.isPackaged
 
 function resolveIconPath() {
   const candidates = isDev
-    ? [path.join(__dirname, '../build/icon.png')]
+    ? [
+        path.join(__dirname, '../build/icon.ico'),
+        path.join(__dirname, '../build/icon.png'),
+      ]
     : [
+        path.join(process.resourcesPath, 'icon.ico'),
         path.join(process.resourcesPath, 'icon.png'),
+        path.join(__dirname, '../build/icon.ico'),
         path.join(__dirname, '../build/icon.png'),
       ]
   return candidates.find((candidate) => existsSync(candidate))

@@ -32,24 +32,45 @@ const faviconSvg = `<?xml version="1.0" encoding="UTF-8"?>
 </svg>
 `
 
-function writeIco(pngPath, icoPath) {
-  const png = fs.readFileSync(pngPath)
+/** Windows taskbar/explorer expect multiple sizes in the ICO. */
+const ICO_SIZES = [16, 24, 32, 48, 64, 128, 256]
+
+function renderPng(size) {
+  return Buffer.from(
+    new Resvg(svg, {
+      fitTo: { mode: 'width', value: size },
+    })
+      .render()
+      .asPng(),
+  )
+}
+
+function writeMultiSizeIco(pngBuffers, icoPath) {
+  const count = pngBuffers.length
   const header = Buffer.alloc(6)
   header.writeUInt16LE(0, 0)
   header.writeUInt16LE(1, 2)
-  header.writeUInt16LE(1, 4)
+  header.writeUInt16LE(count, 4)
 
-  const entry = Buffer.alloc(16)
-  entry[0] = 0
-  entry[1] = 0
-  entry[2] = 0
-  entry[3] = 0
-  entry.writeUInt16LE(1, 4)
-  entry.writeUInt16LE(32, 6)
-  entry.writeUInt32LE(png.length, 8)
-  entry.writeUInt32LE(6 + 16, 12)
+  const entries = []
+  let offset = 6 + count * 16
+  for (let i = 0; i < count; i++) {
+    const size = ICO_SIZES[i]
+    const png = pngBuffers[i]
+    const entry = Buffer.alloc(16)
+    entry[0] = size >= 256 ? 0 : size
+    entry[1] = size >= 256 ? 0 : size
+    entry[2] = 0
+    entry[3] = 0
+    entry.writeUInt16LE(1, 4)
+    entry.writeUInt16LE(32, 6)
+    entry.writeUInt32LE(png.length, 8)
+    entry.writeUInt32LE(offset, 12)
+    entries.push(entry)
+    offset += png.length
+  }
 
-  fs.writeFileSync(icoPath, Buffer.concat([header, entry, png]))
+  fs.writeFileSync(icoPath, Buffer.concat([header, ...entries, ...pngBuffers]))
 }
 
 const buildDir = path.join(root, 'build')
@@ -59,19 +80,18 @@ fs.mkdirSync(buildDir, { recursive: true })
 fs.writeFileSync(path.join(buildDir, 'icon.svg'), svg)
 fs.writeFileSync(path.join(publicDir, 'favicon.svg'), faviconSvg)
 
-const png = new Resvg(svg, {
-  fitTo: { mode: 'width', value: 1024 },
-}).render().asPng()
+const png1024 = renderPng(1024)
+const icoPngs = ICO_SIZES.map((size) => renderPng(size))
 
 const buildPng = path.join(buildDir, 'icon.png')
 const publicPng = path.join(publicDir, 'icon.png')
 const buildIco = path.join(buildDir, 'icon.ico')
 
-fs.writeFileSync(buildPng, png)
-fs.writeFileSync(publicPng, png)
-writeIco(buildPng, buildIco)
+fs.writeFileSync(buildPng, png1024)
+fs.writeFileSync(publicPng, png1024)
+writeMultiSizeIco(icoPngs, buildIco)
 
 console.log(`Wrote ${buildPng}`)
 console.log(`Wrote ${publicPng}`)
-console.log(`Wrote ${buildIco}`)
+console.log(`Wrote ${buildIco} (${ICO_SIZES.join(', ')}px)`)
 console.log(`Wrote ${path.join(publicDir, 'favicon.svg')}`)
