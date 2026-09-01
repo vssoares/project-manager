@@ -3,7 +3,7 @@
 @theme {
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
   --font-headline: "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-code: "IBM Plex Mono", "JetBrains Mono", ui-monospace, monospace;
+  --font-code: "JetBrains Mono", ui-monospace, monospace;
 
   /* Patch bay palette */
   --color-void: #0a0e12;

@@ -19,15 +19,17 @@
       </div>
     </div>
 
-    <div class="px-3 py-3">
-      <button
-        type="button"
-        class="w-full bg-copper text-on-primary py-2 rounded-md flex items-center justify-center gap-2 hover:bg-copper-dim transition-colors text-[11px] font-semibold tracking-wide"
-        (click)="navigate.emit('settings')"
-      >
-        <app-icon name="plus" [size]="14" /> Novo arquivo
-      </button>
-    </div>
+    @if (page() === 'files') {
+      <div class="px-3 py-3">
+        <button
+          type="button"
+          class="w-full bg-copper text-on-primary py-2 rounded-md flex items-center justify-center gap-2 hover:bg-copper-dim transition-colors text-[11px] font-semibold tracking-wide"
+          (click)="navigate.emit('settings')"
+        >
+          <app-icon name="plus" [size]="14" /> Novo arquivo
+        </button>
+      </div>
+    }
 
     <nav class="flex-1 overflow-y-auto scrollbar-thin py-1">
       <div class="px-4 pb-2 text-[10px] uppercase tracking-[0.2em] text-mute">Arquivos</div>

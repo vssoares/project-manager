@@ -27332,8 +27332,13 @@ var store = new ElectronStore({ name: "env-switcher-data" });
 var mainWindow = null;
 var isDev = !app2.isPackaged;
 function resolveIconPath() {
-  const candidates = isDev ? [path6.join(__dirname, "../build/icon.png")] : [
+  const candidates = isDev ? [
+    path6.join(__dirname, "../build/icon.ico"),
+    path6.join(__dirname, "../build/icon.png")
+  ] : [
+    path6.join(process.resourcesPath, "icon.ico"),
     path6.join(process.resourcesPath, "icon.png"),
+    path6.join(__dirname, "../build/icon.ico"),
     path6.join(__dirname, "../build/icon.png")
   ];
   return candidates.find((candidate) => existsSync(candidate));

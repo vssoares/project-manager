@@ -8,8 +8,6 @@ import { UpdateOverlay } from '../shared/components/update-overlay/update-overla
 
 const NAV_TABS: { key: PageKey; label: string; hint: string }[] = [
   { key: 'files', label: 'Editor', hint: 'Editar ambientes' },
-  { key: 'history', label: 'Histórico', hint: 'Versões salvas' },
-  { key: 'compare', label: 'Diff', hint: 'Comparar conteúdo' },
   { key: 'gitflow', label: 'Git Flow', hint: 'Hotfix e branches' },
 ];
 

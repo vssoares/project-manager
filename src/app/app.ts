@@ -1,16 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { AppStateService } from './core/app-state.service';
 import type { PageKey } from './core/types';
-import { ComparePage } from './features/env-files/pages/compare-page/compare-page';
 import { FilesPage } from './features/env-files/pages/files-page/files-page';
-import { HistoryPage } from './features/env-files/pages/history-page/history-page';
 import { SettingsPage } from './features/env-files/pages/settings-page/settings-page';
 import { GitFlowPage } from './features/git-flow/pages/git-flow-page/git-flow-page';
 import { Layout } from './layout/layout';
 
 @Component({
   selector: 'app-root',
-  imports: [Layout, FilesPage, HistoryPage, ComparePage, SettingsPage, GitFlowPage],
+  imports: [Layout, FilesPage, SettingsPage, GitFlowPage],
   template: `
     @if (!app.loaded()) {
       <div class="h-screen w-screen flex flex-col items-center justify-center gap-3 bg-void text-mute text-sm">
@@ -22,12 +20,6 @@ import { Layout } from './layout/layout';
         @switch (page()) {
           @case ('files') {
             <app-files-page />
-          }
-          @case ('history') {
-            <app-history-page />
-          }
-          @case ('compare') {
-            <app-compare-page />
           }
           @case ('gitflow') {
             <app-git-flow-page />

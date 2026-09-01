@@ -87,7 +87,7 @@ export function languageFromFileName(name: string): string {
 }
 
 export const editorOptions: editor.IStandaloneEditorConstructionOptions = {
-  fontFamily: '"IBM Plex Mono", "JetBrains Mono", ui-monospace, monospace',
+  fontFamily: '"JetBrains Mono", ui-monospace, monospace',
   fontSize: 13,
   lineHeight: 22,
   fontLigatures: true,
