@@ -12,22 +12,25 @@ if (-not $action) {
     exit 1
 }
 
+function Invoke-GitCmd {
+    param([Parameter(Mandatory = $true)][string[]]$GitArgs)
+    $cmd = "git " + ($GitArgs -join " ")
+    Write-Host "> $cmd" -ForegroundColor DarkCyan
+    & git @GitArgs
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+}
+
 function Update-MainBranches {
     Write-Host "--- Fazendo fetch ---" -ForegroundColor Yellow
-    git fetch --all
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    Invoke-GitCmd -GitArgs @("fetch", "--all")
 
     Write-Host "--- Atualizando master ---" -ForegroundColor Yellow
-    git checkout master
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    git pull origin master
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    Invoke-GitCmd -GitArgs @("checkout", "master")
+    Invoke-GitCmd -GitArgs @("pull", "origin", "master")
 
     Write-Host "--- Atualizando develop ---" -ForegroundColor Yellow
-    git checkout develop
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    git pull origin develop
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    Invoke-GitCmd -GitArgs @("checkout", "develop")
+    Invoke-GitCmd -GitArgs @("pull", "origin", "develop")
 }
 
 switch ($action) {
@@ -38,7 +41,7 @@ switch ($action) {
         }
         Update-MainBranches
         Write-Host "=== Iniciando hotfix $version... ===" -ForegroundColor Cyan
-        git flow hotfix start $version
+        Invoke-GitCmd -GitArgs @("flow", "hotfix", "start", $version)
     }
 
     "finish" {
@@ -48,7 +51,7 @@ switch ($action) {
         }
         Update-MainBranches
         Write-Host "=== Finalizando hotfix $version... ===" -ForegroundColor Green
-        git flow hotfix finish $version -m "v$version" -p
+        Invoke-GitCmd -GitArgs @("flow", "hotfix", "finish", $version, "-m", "v$version", "-p")
     }
 
     "delete" {
@@ -59,9 +62,9 @@ switch ($action) {
         Update-MainBranches
         Write-Host "=== Deletando hotfix $version... ===" -ForegroundColor Magenta
         if ($force) {
-            git flow hotfix delete $version -f
+            Invoke-GitCmd -GitArgs @("flow", "hotfix", "delete", $version, "-f")
         } else {
-            git flow hotfix delete $version
+            Invoke-GitCmd -GitArgs @("flow", "hotfix", "delete", $version)
         }
         Write-Host "=== Hotfix $version deletado ===" -ForegroundColor Magenta
     }
@@ -81,13 +84,20 @@ switch ($action) {
             $fullBranch = "feature/$branchType-$branchName"
         }
         Write-Host "=== Criando branch '$fullBranch' a partir de develop... ===" -ForegroundColor Cyan
-        git checkout develop
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-        git pull origin develop
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-        git checkout -b $fullBranch
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        Invoke-GitCmd -GitArgs @("checkout", "develop")
+        Invoke-GitCmd -GitArgs @("pull", "origin", "develop")
+        Invoke-GitCmd -GitArgs @("checkout", "-b", $fullBranch)
         Write-Host "=== Branch '$fullBranch' criado com sucesso! ===" -ForegroundColor Green
+    }
+
+    "delete-branch" {
+        if (-not $branchName) {
+            Write-Host "Erro: nome do branch é obrigatório." -ForegroundColor Red
+            exit 1
+        }
+        Write-Host "=== Deletando branch local '$branchName'... ===" -ForegroundColor Magenta
+        Invoke-GitCmd -GitArgs @("branch", "-D", $branchName)
+        Write-Host "=== Branch '$branchName' deletado ===" -ForegroundColor Magenta
     }
 
     default {

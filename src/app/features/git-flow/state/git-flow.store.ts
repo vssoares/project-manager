@@ -100,15 +100,25 @@ export class GitFlowStore {
     if (!project || !action || !version || this.running()) return;
 
     const projectPath = this.getProjectPath(project);
-    const forceFlag = action === 'delete' && this.forceHotfixDelete() ? ' -f' : '';
-    this.lines.set([{ text: `> [${project}] hf ${action} ${version}${forceFlag}`, type: 'system' }]);
+    const force = action === 'delete' && this.forceHotfixDelete();
+    const cmd =
+      action === 'start'
+        ? `git flow hotfix start ${version}`
+        : action === 'finish'
+          ? `git flow hotfix finish ${version} -m "v${version}" -p`
+          : `git flow hotfix delete ${version}${force ? ' -f' : ''}`;
+
+    this.lines.set([
+      { text: `> [${project}] ${cmd}`, type: 'system' },
+      { text: `  cwd: ${projectPath}`, type: 'system' },
+    ]);
     this.setupListeners();
 
     await this.api.runCommand({
       action,
       version,
       projectPath,
-      force: action === 'delete' ? this.forceHotfixDelete() : false,
+      force,
     });
   }
 
@@ -118,7 +128,11 @@ export class GitFlowStore {
     if (!project || !name || this.running()) return;
 
     const projectPath = this.getProjectPath(project);
-    this.lines.set([{ text: `> [${project}] criar branch: ${this.branchPreview()}`, type: 'system' }]);
+    const branch = this.branchPreview();
+    this.lines.set([
+      { text: `> [${project}] git checkout -b ${branch}`, type: 'system' },
+      { text: `  cwd: ${projectPath}`, type: 'system' },
+    ]);
     this.setupListeners();
 
     await this.api.runCommand({
@@ -140,7 +154,10 @@ export class GitFlowStore {
     if (!confirmed) return;
 
     const projectPath = this.getProjectPath(project);
-    this.lines.set([{ text: `> [${project}] git branch -D ${name}`, type: 'system' }]);
+    this.lines.set([
+      { text: `> [${project}] git branch -D ${name}`, type: 'system' },
+      { text: `  cwd: ${projectPath}`, type: 'system' },
+    ]);
     this.setupListeners();
 
     await this.api.runCommand({
