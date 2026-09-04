@@ -125,18 +125,28 @@
     </header>
 
     @if (update.pendingVersion(); as version) {
-      <div class="fade-in shrink-0 flex items-center justify-between border-b border-copper/50 bg-copper/10 px-4 py-2">
-        <span class="text-[10px] tracking-widest text-copper uppercase truncate font-code">
-          <span aria-hidden="true">↑ </span>atualização disponível → v{{ version }}
+      <div class="fade-in shrink-0 flex items-center justify-between gap-3 border-b border-copper/50 bg-copper/10 px-4 py-2">
+        <span class="text-[10px] tracking-widest text-copper uppercase truncate font-code min-w-0">
+          <span aria-hidden="true">↑ </span>v{{ version }} disponível — ativar atualizações automáticas?
         </span>
-        <button
-          type="button"
-          [disabled]="update.isUpdating()"
-          (click)="onUpdateClick()"
-          class="text-[10px] tracking-widest uppercase border border-copper text-copper hover:bg-copper hover:text-on-primary disabled:opacity-60 disabled:cursor-not-allowed px-2 py-0.5 rounded transition-colors cursor-pointer shrink-0 ml-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-copper"
-        >
-          {{ update.isUpdating() ? 'atualizando...' : 'atualizar' }}
-        </button>
+        <div class="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            [disabled]="update.isUpdating()"
+            (click)="update.dismissPrompt()"
+            class="text-[10px] tracking-widest uppercase text-mute hover:text-ink disabled:opacity-60 disabled:cursor-not-allowed px-2 py-0.5 rounded transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-copper"
+          >
+            agora não
+          </button>
+          <button
+            type="button"
+            [disabled]="update.isUpdating()"
+            (click)="update.enableAutoUpdateAndInstall()"
+            class="text-[10px] tracking-widest uppercase border border-copper text-copper hover:bg-copper hover:text-on-primary disabled:opacity-60 disabled:cursor-not-allowed px-2 py-0.5 rounded transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-copper"
+          >
+            {{ update.isUpdating() ? 'atualizando...' : 'ativar e atualizar' }}
+          </button>
+        </div>
       </div>
     }
 

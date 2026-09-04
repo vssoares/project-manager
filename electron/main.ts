@@ -85,10 +85,6 @@ app.whenReady().then(() => {
   const win = createWindow()
   setupAutoUpdater(win)
 
-  if (!isDev) {
-    setTimeout(() => autoUpdater.checkForUpdates().catch(() => {}), 3000)
-  }
-
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
@@ -106,6 +102,15 @@ ipcMain.handle('state:load', () => {
 
 ipcMain.handle('state:save', (_evt, state: unknown) => {
   store.set('appState', state)
+  return true
+})
+
+ipcMain.handle('prefs:getAutoUpdate', () => {
+  return store.get('autoUpdateEnabled', false) as boolean
+})
+
+ipcMain.handle('prefs:setAutoUpdate', (_evt, enabled: boolean) => {
+  store.set('autoUpdateEnabled', enabled)
   return true
 })
 

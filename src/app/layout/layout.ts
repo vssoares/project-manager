@@ -46,8 +46,4 @@ export class Layout {
   appliedEnv(f: { environments: { id: string; name: string; color: string }[]; activeEnvironmentId: string | null }) {
     return f.environments.find((e) => e.id === f.activeEnvironmentId) ?? null;
   }
-
-  protected onUpdateClick(): void {
-    this.update.startUpdate();
-  }
 }

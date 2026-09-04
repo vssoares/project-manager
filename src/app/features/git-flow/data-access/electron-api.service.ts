@@ -47,6 +47,14 @@ export class ElectronApiService {
     return api.onPsDone(cb)
   }
 
+  getAutoUpdateEnabled(): Promise<boolean> {
+    return api.getAutoUpdateEnabled()
+  }
+
+  setAutoUpdateEnabled(enabled: boolean): Promise<boolean> {
+    return api.setAutoUpdateEnabled(enabled)
+  }
+
   checkForUpdate(): Promise<unknown> {
     return api.checkForUpdate()
   }

@@ -8,8 +8,8 @@ export interface UpdateInfo {
 }
 
 /**
- * Owns the auto-update flow (electron-updater over IPC): checks for updates
- * shortly after boot, and drives the download/install lifecycle.
+ * Auto-update flow: asks once to enable automatic updates, then installs
+ * future releases without prompting again.
  */
 @Injectable({ providedIn: 'root' })
 export class UpdateService {
@@ -21,15 +21,48 @@ export class UpdateService {
   readonly updateInfo = signal<UpdateInfo | null>(null);
 
   private initialized = false;
+  private autoUpdateEnabled = false;
 
   init(): void {
     if (this.initialized || !this.electron.isElectron) return;
     this.initialized = true;
 
-    this.electron.onUpdateAvailable(({ version }) => this.pendingVersion.set(version));
+    void this.bootstrap();
+  }
+
+  async enableAutoUpdateAndInstall(): Promise<void> {
+    const version = this.pendingVersion();
+    if (!version || this.isUpdating()) return;
+
+    await this.electron.setAutoUpdateEnabled(true);
+    this.autoUpdateEnabled = true;
+    this.pendingVersion.set(null);
+    await this.startUpdate(version);
+  }
+
+  dismissPrompt(): void {
+    this.pendingVersion.set(null);
+  }
+
+  dismissError(): void {
+    this.updateError.set('');
+  }
+
+  private async bootstrap(): Promise<void> {
+    this.autoUpdateEnabled = await this.electron.getAutoUpdateEnabled();
+
+    this.electron.onUpdateAvailable(({ version }) => {
+      if (this.autoUpdateEnabled) {
+        void this.startUpdate(version);
+      } else {
+        this.pendingVersion.set(version);
+      }
+    });
 
     this.electron.onUpdateError((msg) => {
-      this.updateError.set(msg ? `verificação: ${msg}` : 'verificação de atualização falhou');
+      this.updateInfo.set(null);
+      this.isUpdating.set(false);
+      this.updateError.set(msg ? `atualização: ${msg}` : 'falha ao atualizar');
     });
 
     this.electron.onUpdateProgress(({ percent }) => {
@@ -44,16 +77,16 @@ export class UpdateService {
     });
 
     setTimeout(() => {
+      if (!this.electron.isElectron) return
       this.electron.checkForUpdate().catch(() => {});
     }, 3000);
   }
 
-  async startUpdate(): Promise<void> {
-    const version = this.pendingVersion();
+  private async startUpdate(version: string): Promise<void> {
     if (!version || this.isUpdating()) return;
 
     this.isUpdating.set(true);
-    this.pendingVersion.set(null);
+    this.updateError.set('');
 
     try {
       this.updateInfo.set({ version, progress: 0, status: 'downloading' });
@@ -63,9 +96,5 @@ export class UpdateService {
       this.isUpdating.set(false);
       this.updateError.set((err as Error)?.message || 'falha ao atualizar');
     }
-  }
-
-  dismissError(): void {
-    this.updateError.set('');
   }
 }

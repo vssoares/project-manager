@@ -40,6 +40,8 @@ export interface ElectronApi {
   onPsErr: (cb: (text: string) => void) => () => void
   onPsDone: (cb: (code: number) => void) => () => void
 
+  getAutoUpdateEnabled: () => Promise<boolean>
+  setAutoUpdateEnabled: (enabled: boolean) => Promise<boolean>
   checkForUpdate: () => Promise<unknown>
   downloadUpdate: () => Promise<unknown>
   installUpdate: () => Promise<void>
@@ -94,6 +96,13 @@ const browserFallback: ElectronApi = {
   onPsErr: noop,
   onPsDone: noop,
 
+  async getAutoUpdateEnabled() {
+    return localStorage.getItem('autoUpdateEnabled') === 'true'
+  },
+  async setAutoUpdateEnabled(enabled) {
+    localStorage.setItem('autoUpdateEnabled', String(enabled))
+    return true
+  },
   async checkForUpdate() {
     return null
   },

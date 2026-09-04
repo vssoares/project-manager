@@ -28,6 +28,10 @@ const api = {
   onPsErr: (cb: (text: string) => void) => subscribe('ps:err', cb),
   onPsDone: (cb: (code: number) => void) => subscribe('ps:done', cb),
 
+  getAutoUpdateEnabled: (): Promise<boolean> => ipcRenderer.invoke('prefs:getAutoUpdate'),
+  setAutoUpdateEnabled: (enabled: boolean): Promise<boolean> =>
+    ipcRenderer.invoke('prefs:setAutoUpdate', enabled),
+
   checkForUpdate: (): Promise<unknown> => ipcRenderer.invoke('update-check'),
   downloadUpdate: (): Promise<unknown> => ipcRenderer.invoke('update-download'),
   installUpdate: (): Promise<void> => ipcRenderer.invoke('update-install'),
