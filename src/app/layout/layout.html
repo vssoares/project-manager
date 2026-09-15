@@ -3,8 +3,7 @@
     <app-update-overlay [info]="info" />
   }
 
-  @if (page() !== 'gitflow') {
-  <aside class="w-[248px] shrink-0 h-full flex flex-col bg-panel border-r border-rail-edge rail-grain">
+  <aside class="w-[220px] shrink-0 h-full flex flex-col bg-panel border-r border-rail-edge rail-grain">
     <div class="px-4 py-4 flex items-center gap-3 border-b border-rail-edge">
       <div class="w-9 h-9 rounded-md bg-rail border border-rail-edge flex items-center justify-center text-copper">
         <app-icon name="code" [size]="16" />
@@ -20,55 +19,26 @@
       </div>
     </div>
 
-    @if (page() === 'files') {
-      <div class="px-3 py-3">
+    <nav class="flex-1 overflow-y-auto scrollbar-thin py-3 space-y-0.5 px-2">
+      <div class="px-2 pb-2 text-[10px] uppercase tracking-[0.2em] text-mute">Menu</div>
+      @for (t of navTabs; track t.key) {
         <button
           type="button"
-          class="w-full bg-copper text-on-primary py-2 rounded-md flex items-center justify-center gap-2 hover:bg-copper-dim transition-colors text-[11px] font-semibold tracking-wide"
-          (click)="navigate.emit('settings')"
+          class="w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-md border-l-2 transition-colors duration-150"
+          [attr.title]="t.hint"
+          [class.border-copper]="page() === t.key"
+          [class.bg-rail]="page() === t.key"
+          [class.text-copper]="page() === t.key"
+          [class.font-medium]="page() === t.key"
+          [class.border-transparent]="page() !== t.key"
+          [class.text-mute]="page() !== t.key"
+          (click)="navigate.emit(t.key)"
         >
-          <app-icon name="plus" [size]="14" /> Novo arquivo
+          <app-icon [name]="t.icon" [size]="15" />
+          <span class="text-sm">{{ t.label }}</span>
         </button>
-      </div>
-
-      <nav class="flex-1 overflow-y-auto scrollbar-thin py-1">
-        <div class="px-4 pb-2 text-[10px] uppercase tracking-[0.2em] text-mute">Arquivos</div>
-        @if (app.trackedFiles().length === 0) {
-          <div class="px-4 py-3 text-xs text-mute leading-relaxed">
-            Nenhum arquivo ainda. Crie um para montar os ambientes.
-          </div>
-        }
-        @for (f of app.trackedFiles(); track f.id) {
-          <button
-            type="button"
-            class="w-full flex items-start gap-2.5 px-3 py-2.5 text-left border-l-2 transition-colors duration-150"
-            [class.border-copper]="f.id === app.state().selectedFileId"
-            [class.bg-rail]="f.id === app.state().selectedFileId"
-            [class.text-ink]="f.id === app.state().selectedFileId"
-            [class.border-transparent]="f.id !== app.state().selectedFileId"
-            [class.text-mute]="f.id !== app.state().selectedFileId"
-            (click)="openFile(f.id)"
-          >
-            <app-icon
-              name="file"
-              [size]="15"
-              [className]="f.id === app.state().selectedFileId ? 'text-copper mt-0.5' : 'mt-0.5'"
-            />
-            <span class="min-w-0 flex-1">
-              <span class="font-code text-xs block truncate">{{ f.name }}</span>
-              @if (appliedEnv(f); as applied) {
-                <span class="flex items-center gap-1.5 mt-1 text-[10px] text-mute">
-                  <span class="w-1.5 h-1.5 rounded-full circuit-pulse" [style.background]="applied.color"></span>
-                  {{ applied.name }}
-                </span>
-              }
-            </span>
-          </button>
-        }
-      </nav>
-    } @else {
-      <div class="flex-1"></div>
-    }
+      }
+    </nav>
 
     <div class="border-t border-rail-edge py-2">
       <button
@@ -84,31 +54,52 @@
       </button>
     </div>
   </aside>
-  }
 
   <div class="flex-1 flex flex-col h-full min-w-0">
-    <header class="h-12 shrink-0 border-b border-rail-edge flex items-center justify-between px-4 bg-panel">
-      <nav class="flex items-stretch gap-1 h-full">
-        @for (t of navTabs; track t.key) {
+    <header class="h-12 shrink-0 border-b border-rail-edge flex items-center gap-3 px-3 bg-panel min-w-0">
+      @if (page() === 'files') {
+        <div class="flex items-center gap-1.5 flex-1 min-w-0 overflow-x-auto scrollbar-thin">
+          @for (f of app.trackedFiles(); track f.id) {
+            <button
+              type="button"
+              class="shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-left transition-colors duration-150 max-w-[180px]"
+              [class.border-copper]="f.id === app.state().selectedFileId"
+              [class.bg-rail]="f.id === app.state().selectedFileId"
+              [class.text-ink]="f.id === app.state().selectedFileId"
+              [class.border-rail-edge]="f.id !== app.state().selectedFileId"
+              [class.text-mute]="f.id !== app.state().selectedFileId"
+              [class.bg-void]="f.id !== app.state().selectedFileId"
+              [attr.title]="f.name"
+              (click)="openFile(f.id)"
+            >
+              @if (appliedEnv(f); as applied) {
+                <span class="w-1.5 h-1.5 rounded-full shrink-0" [style.background]="applied.color"></span>
+              } @else {
+                <app-icon
+                  name="file"
+                  [size]="13"
+                  [className]="f.id === app.state().selectedFileId ? 'text-copper' : ''"
+                />
+              }
+              <span class="font-code text-[11px] truncate">{{ f.name }}</span>
+            </button>
+          }
+
           <button
             type="button"
-            class="px-3 text-sm transition-colors border-b-2"
-            [attr.title]="t.hint"
-            [class.border-copper]="page() === t.key"
-            [class.text-copper]="page() === t.key"
-            [class.font-medium]="page() === t.key"
-            [class.border-transparent]="page() !== t.key"
-            [class.text-mute]="page() !== t.key"
-            (click)="navigate.emit(t.key)"
+            class="shrink-0 bg-copper text-on-primary px-2.5 py-1.5 rounded-md flex items-center gap-1.5 hover:bg-copper-dim transition-colors text-[10px] font-semibold tracking-wide"
+            (click)="navigate.emit('settings')"
           >
-            {{ t.label }}
+            <app-icon name="plus" [size]="12" /> Novo arquivo
           </button>
-        }
-      </nav>
+        </div>
+      } @else {
+        <div class="flex-1"></div>
+      }
 
-      <div class="flex items-center gap-3 text-[11px] font-code text-mute">
+      <div class="flex items-center gap-3 text-[11px] font-code text-mute shrink-0">
         @if (app.selectedFile(); as file) {
-          <span class="truncate max-w-[220px] text-ink/80">{{ file.name }}</span>
+          <span class="truncate max-w-[160px] text-ink/80">{{ file.name }}</span>
           <span class="text-rail-edge">·</span>
           @if (liveEnv(); as env) {
             <span class="inline-flex items-center gap-1.5 text-signal">

@@ -6,9 +6,9 @@ import { ElectronApiService } from '../features/git-flow/data-access/electron-ap
 import { Icon } from '../shared/components/icon/icon';
 import { UpdateOverlay } from '../shared/components/update-overlay/update-overlay';
 
-const NAV_TABS: { key: PageKey; label: string; hint: string }[] = [
-  { key: 'files', label: 'Editor', hint: 'Editar ambientes' },
-  { key: 'gitflow', label: 'Git Flow', hint: 'Hotfix e branches' },
+const NAV_TABS: { key: PageKey; label: string; hint: string; icon: string }[] = [
+  { key: 'files', label: 'Editor', hint: 'Editar ambientes', icon: 'edit' },
+  { key: 'gitflow', label: 'Git Flow', hint: 'Hotfix e branches', icon: 'compare' },
 ];
 
 @Component({
