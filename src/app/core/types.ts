@@ -29,7 +29,14 @@ export interface AppState {
   selectedEnvironmentId: string | null
 }
 
-export type PageKey = 'files' | 'gitflow' | 'settings'
+export type PageKey =
+  | 'files'
+  | 'gitflow'
+  | 'settings'
+  | 'cpf'
+  | 'cnpj'
+  | 'cep'
+  | 'password'
 
 export const ENV_COLORS = [
   { name: 'Produção', color: '#f07178' },

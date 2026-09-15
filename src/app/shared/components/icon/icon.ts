@@ -21,6 +21,8 @@ const PATHS: Record<string, string> = {
   external: 'M14 4h6v6M20 4 10 14M6 6h4v0H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4',
   code: 'm8 6-6 6 6 6M16 6l6 6-6 6',
   edit: 'M11 4H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2v-6M18.4 2.6a2 2 0 1 1 3 3L12 15l-4 1 1-4 9.4-9.4Z',
+  chevron: 'm6 9 6 6 6-6',
+  key: 'M21 2l-2 2m-7.6 7.6a5 5 0 1 1-2.8-2.8L15 4h3v3l3 3-1.4 1.4M10 11l4 4',
 };
 
 @Component({

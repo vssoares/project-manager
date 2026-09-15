@@ -11,6 +11,15 @@ const NAV_TABS: { key: PageKey; label: string; hint: string; icon: string }[] = 
   { key: 'gitflow', label: 'Git Flow', hint: 'Hotfix e branches', icon: 'compare' },
 ];
 
+const FOURDEVS_ITEMS: { key: PageKey; label: string }[] = [
+  { key: 'cpf', label: 'Gerador CPF' },
+  { key: 'cnpj', label: 'Gerador CNPJ' },
+  { key: 'cep', label: 'Gerador CEP' },
+  { key: 'password', label: 'Gerador senha' },
+];
+
+const FOURDEVS_KEYS = new Set<PageKey>(FOURDEVS_ITEMS.map((i) => i.key));
+
 @Component({
   selector: 'app-layout',
   imports: [Icon, UpdateOverlay],
@@ -21,15 +30,25 @@ export class Layout {
   private readonly electron = inject(ElectronApiService);
   protected readonly update = inject(UpdateService);
   readonly navTabs = NAV_TABS;
+  readonly fourdevsItems = FOURDEVS_ITEMS;
 
   readonly page = input.required<PageKey>();
   readonly navigate = output<PageKey>();
   protected readonly appVersion = signal('');
+  private readonly fourdevsManualOpen = signal<boolean | null>(null);
 
   readonly liveEnv = computed(() => {
     const file = this.app.selectedFile();
     return file?.environments.find((e) => e.id === file.activeEnvironmentId) ?? null;
   });
+
+  protected readonly fourdevsOpen = computed(() => {
+    const manual = this.fourdevsManualOpen();
+    if (manual !== null) return manual;
+    return FOURDEVS_KEYS.has(this.page());
+  });
+
+  protected readonly fourdevsActive = computed(() => FOURDEVS_KEYS.has(this.page()));
 
   constructor() {
     this.update.init();
@@ -41,6 +60,15 @@ export class Layout {
   openFile(id: string) {
     this.app.selectFile(id);
     this.navigate.emit('files');
+  }
+
+  toggleFourdevs(): void {
+    this.fourdevsManualOpen.set(!this.fourdevsOpen());
+  }
+
+  openFourdevs(key: PageKey): void {
+    this.fourdevsManualOpen.set(true);
+    this.navigate.emit(key);
   }
 
   appliedEnv(f: { environments: { id: string; name: string; color: string }[]; activeEnvironmentId: string | null }) {
