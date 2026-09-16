@@ -1,3 +1,34 @@
+export type PageKey =
+  | 'files'
+  | 'gitflow'
+  | 'settings'
+  | 'cpf'
+  | 'cnpj'
+  | 'cep'
+  | 'password'
+  | 'rg'
+  | 'pis'
+  | 'titulo'
+  | 'cnh'
+  | 'validate-docs'
+  | 'credit-card'
+  | 'bank-account'
+  | 'currency'
+  | 'person-name'
+  | 'fake-email'
+  | 'lorem'
+  | 'text-counter'
+  | 'text-case'
+  | 'uuid'
+  | 'hash'
+  | 'base64'
+  | 'json-tools'
+  | 'user-agent'
+  | 'number-gen'
+  | 'percentage'
+  | 'date-diff'
+  | 'unit-convert'
+
 export interface Version {
   id: string
   message: string
@@ -28,15 +59,6 @@ export interface AppState {
   selectedFileId: string | null
   selectedEnvironmentId: string | null
 }
-
-export type PageKey =
-  | 'files'
-  | 'gitflow'
-  | 'settings'
-  | 'cpf'
-  | 'cnpj'
-  | 'cep'
-  | 'password'
 
 export const ENV_COLORS = [
   { name: 'Produção', color: '#f07178' },

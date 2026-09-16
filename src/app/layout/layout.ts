@@ -2,6 +2,7 @@ import { Component, computed, inject, input, output, signal } from '@angular/cor
 import { AppStateService } from '../core/app-state.service';
 import { UpdateService } from '../core/update/update.service';
 import type { PageKey } from '../core/types';
+import { FOURDEVS_GROUPS, FOURDEVS_KEYS } from '../features/fourdevs/fourdevs.nav';
 import { ElectronApiService } from '../features/git-flow/data-access/electron-api.service';
 import { Icon } from '../shared/components/icon/icon';
 import { UpdateOverlay } from '../shared/components/update-overlay/update-overlay';
@@ -10,15 +11,6 @@ const NAV_TABS: { key: PageKey; label: string; hint: string; icon: string }[] = 
   { key: 'files', label: 'Editor', hint: 'Editar ambientes', icon: 'edit' },
   { key: 'gitflow', label: 'Git Flow', hint: 'Hotfix e branches', icon: 'compare' },
 ];
-
-const FOURDEVS_ITEMS: { key: PageKey; label: string }[] = [
-  { key: 'cpf', label: 'Gerador CPF' },
-  { key: 'cnpj', label: 'Gerador CNPJ' },
-  { key: 'cep', label: 'Gerador CEP' },
-  { key: 'password', label: 'Gerador senha' },
-];
-
-const FOURDEVS_KEYS = new Set<PageKey>(FOURDEVS_ITEMS.map((i) => i.key));
 
 @Component({
   selector: 'app-layout',
@@ -30,7 +22,7 @@ export class Layout {
   private readonly electron = inject(ElectronApiService);
   protected readonly update = inject(UpdateService);
   readonly navTabs = NAV_TABS;
-  readonly fourdevsItems = FOURDEVS_ITEMS;
+  readonly fourdevsGroups = FOURDEVS_GROUPS;
 
   readonly page = input.required<PageKey>();
   readonly navigate = output<PageKey>();
