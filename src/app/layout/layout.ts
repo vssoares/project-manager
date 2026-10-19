@@ -7,15 +7,26 @@ import { ElectronApiService } from '../features/git-flow/data-access/electron-ap
 import { Icon } from '../shared/components/icon/icon';
 import { UpdateOverlay } from '../shared/components/update-overlay/update-overlay';
 
+const COLLAPSED_KEY = 'project_manager_sidebar_collapsed';
+
 const NAV_TABS: { key: PageKey; label: string; hint: string; icon: string }[] = [
   { key: 'files', label: 'Editor', hint: 'Editar ambientes', icon: 'edit' },
   { key: 'gitflow', label: 'Git Flow', hint: 'Hotfix e branches', icon: 'compare' },
 ];
 
+function readCollapsed(): boolean {
+  try {
+    return localStorage.getItem(COLLAPSED_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
 @Component({
   selector: 'app-layout',
   imports: [Icon, UpdateOverlay],
   templateUrl: './layout.html',
+  styleUrl: './layout.css',
 })
 export class Layout {
   readonly app = inject(AppStateService);
@@ -27,6 +38,7 @@ export class Layout {
   readonly page = input.required<PageKey>();
   readonly navigate = output<PageKey>();
   protected readonly appVersion = signal('');
+  protected readonly collapsed = signal(readCollapsed());
   private readonly fourdevsManualOpen = signal<boolean | null>(null);
 
   readonly liveEnv = computed(() => {
@@ -54,7 +66,17 @@ export class Layout {
     this.navigate.emit('files');
   }
 
+  toggleSidebar(): void {
+    this.collapsed.update((v) => !v);
+    try {
+      localStorage.setItem(COLLAPSED_KEY, this.collapsed() ? '1' : '0');
+    } catch {
+      /* ignore */
+    }
+  }
+
   toggleFourdevs(): void {
+    if (this.collapsed()) this.toggleSidebar();
     this.fourdevsManualOpen.set(!this.fourdevsOpen());
   }
 

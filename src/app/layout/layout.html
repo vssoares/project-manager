@@ -1,110 +1,17 @@
-<div class="flex h-screen w-screen bg-void text-ink font-sans text-sm">
+<div class="flex flex-col h-screen w-screen bg-void text-ink font-sans text-sm">
   @if (update.updateInfo(); as info) {
     <app-update-overlay [info]="info" />
   }
 
-  <aside class="w-[220px] shrink-0 h-full flex flex-col bg-panel border-r border-rail-edge rail-grain">
-    <div class="px-4 py-4 flex items-center gap-3 border-b border-rail-edge">
-      <div class="w-9 h-9 rounded-md bg-rail border border-rail-edge flex items-center justify-center text-copper">
-        <app-icon name="code" [size]="16" />
-      </div>
-      <div class="min-w-0 flex-1">
-        <div class="font-headline text-[15px] font-semibold leading-tight tracking-tight text-ink">Project manager</div>
-        <div class="flex items-center gap-2 mt-0.5">
-          <span class="text-[10px] uppercase tracking-[0.18em] text-mute">Patch bay</span>
-          @if (appVersion()) {
-            <span class="text-[10px] font-code tracking-widest text-mute">v{{ appVersion() }}</span>
-          }
-        </div>
-      </div>
-    </div>
-
-    <nav class="flex-1 overflow-y-auto scrollbar-thin py-3 space-y-0.5 px-2">
-      <div class="px-2 pb-2 text-[10px] uppercase tracking-[0.2em] text-mute">Menu</div>
-      @for (t of navTabs; track t.key) {
-        <button
-          type="button"
-          class="w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-md border-l-2 transition-colors duration-150"
-          [attr.title]="t.hint"
-          [class.border-copper]="page() === t.key"
-          [class.bg-rail]="page() === t.key"
-          [class.text-copper]="page() === t.key"
-          [class.font-medium]="page() === t.key"
-          [class.border-transparent]="page() !== t.key"
-          [class.text-mute]="page() !== t.key"
-          (click)="navigate.emit(t.key)"
-        >
-          <app-icon [name]="t.icon" [size]="15" />
-          <span class="text-sm">{{ t.label }}</span>
-        </button>
+  <header class="app-header">
+    <button type="button" class="brand" (click)="toggleSidebar()" [attr.aria-expanded]="!collapsed()" aria-controls="app-sidebar" [attr.aria-label]="collapsed() ? 'Expandir menu' : 'Recolher menu'">
+      <app-icon name="menu" [size]="16" />
+      <span class="font-headline text-[15px] font-semibold tracking-tight text-ink">Project manager</span>
+      @if (appVersion()) {
+        <span class="logo-tag font-code">v{{ appVersion() }}</span>
       }
+    </button>
 
-      <div class="pt-1">
-        <button
-          type="button"
-          class="w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-md border-l-2 transition-colors duration-150"
-          [class.border-copper]="fourdevsActive()"
-          [class.bg-rail]="fourdevsActive() && !fourdevsOpen()"
-          [class.text-copper]="fourdevsActive()"
-          [class.font-medium]="fourdevsActive()"
-          [class.border-transparent]="!fourdevsActive()"
-          [class.text-mute]="!fourdevsActive()"
-          (click)="toggleFourdevs()"
-          [attr.aria-expanded]="fourdevsOpen()"
-        >
-          <app-icon name="code" [size]="15" />
-          <span class="text-sm flex-1">4Devs</span>
-          <app-icon
-            name="chevron"
-            [size]="14"
-            [className]="fourdevsOpen() ? 'rotate-180 transition-transform' : 'transition-transform'"
-          />
-        </button>
-
-        @if (fourdevsOpen()) {
-          <div class="mt-0.5 ml-3 pl-2 border-l border-rail-edge space-y-2 py-1">
-            @for (group of fourdevsGroups; track group.id) {
-              <div>
-                <div class="px-3 py-1 text-[9px] uppercase tracking-[0.18em] text-mute/80">{{ group.label }}</div>
-                <div class="space-y-0.5">
-                  @for (item of group.items; track item.key) {
-                    <button
-                      type="button"
-                      class="w-full flex items-center px-3 py-1.5 text-left rounded-md text-xs transition-colors duration-150"
-                      [class.bg-rail]="page() === item.key"
-                      [class.text-copper]="page() === item.key"
-                      [class.font-medium]="page() === item.key"
-                      [class.text-mute]="page() !== item.key"
-                      (click)="openFourdevs(item.key)"
-                    >
-                      {{ item.label }}
-                    </button>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-        }
-      </div>
-    </nav>
-
-    <div class="border-t border-rail-edge py-2">
-      <button
-        type="button"
-        class="w-full flex items-center gap-2 px-4 py-2.5 text-left transition-colors duration-150"
-        [class.text-copper]="page() === 'settings'"
-        [class.font-medium]="page() === 'settings'"
-        [class.text-mute]="page() !== 'settings'"
-        (click)="navigate.emit('settings')"
-      >
-        <app-icon name="settings" [size]="16" />
-        Configurações
-      </button>
-    </div>
-  </aside>
-
-  <div class="flex-1 flex flex-col h-full min-w-0">
-    <header class="h-12 shrink-0 border-b border-rail-edge flex items-center gap-3 px-4 py-2.5 bg-panel min-w-0">
       @if (page() === 'files') {
         <div class="flex items-center gap-1.5 flex-1 min-w-0 overflow-x-auto scrollbar-thin">
           @for (f of app.trackedFiles(); track f.id) {
@@ -161,8 +68,50 @@
           <span>sem arquivo selecionado</span>
         }
       </div>
-    </header>
+  </header>
 
+  <div class="relative flex min-h-0 w-full flex-1 overflow-hidden">
+    <aside id="app-sidebar" class="sidebar" [attr.data-collapsed]="collapsed()" aria-label="Navegação principal">
+      <nav class="nav" aria-label="Menu">
+        <span class="nav-section-label">Projeto</span>
+        @for (t of navTabs; track t.key) {
+          <button type="button" class="nav-item" [class.active]="page() === t.key" [attr.title]="t.hint" (click)="navigate.emit(t.key)">
+            <app-icon [name]="t.icon" [size]="14" />
+            <span>{{ t.label }}</span>
+          </button>
+        }
+
+        <div class="nav-divider"></div>
+        <span class="nav-section-label">Utilitários</span>
+        <button type="button" class="nav-item" [class.active]="fourdevsActive()" title="4Devs" [attr.aria-expanded]="fourdevsOpen()" (click)="toggleFourdevs()">
+          <app-icon name="code" [size]="14" />
+          <span class="flex-1">4Devs</span>
+          <app-icon name="chevron" [size]="13" [className]="fourdevsOpen() ? 'rotate-180 transition-transform' : 'transition-transform'" />
+        </button>
+
+        @if (fourdevsOpen() && !collapsed()) {
+          <div class="sub">
+            @for (group of fourdevsGroups; track group.id) {
+              <span class="nav-section-label">{{ group.label }}</span>
+              @for (item of group.items; track item.key) {
+                <button type="button" class="nav-item sub-item" [class.active]="page() === item.key" (click)="openFourdevs(item.key)">
+                  <span>{{ item.label }}</span>
+                </button>
+              }
+            }
+          </div>
+        }
+      </nav>
+
+      <div class="foot">
+        <button type="button" class="nav-item" [class.active]="page() === 'settings'" title="Configurações" (click)="navigate.emit('settings')">
+          <app-icon name="settings" [size]="14" />
+          <span>Configurações</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-full min-w-0">
     @if (update.pendingVersion(); as version) {
       <div class="fade-in shrink-0 flex items-center justify-between gap-3 border-b border-copper/50 bg-copper/10 px-4 py-2">
         <span class="text-[10px] tracking-widest text-copper uppercase truncate font-code min-w-0">
@@ -207,5 +156,6 @@
     <main class="flex-1 min-h-0 overflow-hidden fade-in">
       <ng-content />
     </main>
+  </div>
   </div>
 </div>

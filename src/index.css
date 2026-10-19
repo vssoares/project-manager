@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@theme {
+@theme static {
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
   --font-headline: "Poppins", ui-sans-serif, system-ui, sans-serif;
   --font-code: "JetBrains Mono", ui-monospace, monospace;
