@@ -92,6 +92,19 @@
   }
 }
 
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-rail-edge) transparent;
+  }
+  *:hover {
+    scrollbar-color: var(--color-mute) transparent;
+  }
+}
+
 @layer utilities {
   .font-headline {
     font-family: var(--font-headline);
